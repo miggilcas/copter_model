@@ -5,6 +5,9 @@
 	Se subscribira al controlador para obtener las acciones de control, con estas 
 	generara las fuerzas y momentos, parametros que debe publicar.
 	07/01/22: Preparado para controlar, recibir las señales del control
+	09/01/22: Control de altura realizado
+	10/01/22: Cambio la IMU para obtener Roll, Pitch y Yaw sacándola del modelo
+	11/01/22: Control de velocidad implementado.
     
 */
 #include "ros/ros.h"
@@ -73,7 +76,7 @@ int main(int argc, char **argv){
 	*/
 	//b (Factor de empuje) y d(factor de arrastre) son calculados a partir de w1 y w2.
 	float b=0.00000254133;//lo suponemos constantemasa*g/(pow(w1,2)+pow(w2,2)*cos(alfax)*cos(alfay));//cambiar por el valor calculado
-	float d=0.01*b;
+	float d=0.05*b;
 	//salidas:
 	float F[n];
 	float M[n];
@@ -103,8 +106,8 @@ int main(int argc, char **argv){
 	* This is a message object. You stuff it with data, and then publish it.
 	*///Descomentar las lineas siguientes para controlar:
 	w1=W.data/2;w2=w1;//Primero control de altura
-	//alfax=Control.x;
-	//alfay=Control.y;
+	alfay=Control.x;
+	alfax=Control.y;
 	//Calculo Fuerzas y Pares:
 	//Fuerza generada por el rotor superior:
 	T1=b*pow(w1,2);
@@ -166,6 +169,7 @@ int main(int argc, char **argv){
 	*/
 	F_pub.publish(Fuerza);
 	M_pub.publish(Momento);
+
 	ros::spinOnce();
 
 	loop_rate.sleep();

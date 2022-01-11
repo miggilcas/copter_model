@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	{
   //calculamos los angulos de Euler [rad]: (se le añadira ruido gaussiano mas adelante)
   RPY.x=atan(latestAccel.linear.x/sqrt(pow(latestAccel.linear.y,2)+pow(latestAccel.linear.z,2)));
-  RPY.y=atan(latestAccel.linear.y/sqrt(pow(latestAccel.linear.y,2)+pow(latestAccel.linear.z,2)));
+  RPY.y=atan(latestAccel.linear.y/sqrt(pow(latestAccel.linear.x,2)+pow(latestAccel.linear.z,2)));
   RPY.z=0.0;
 
   Angle_pub.publish(RPY);

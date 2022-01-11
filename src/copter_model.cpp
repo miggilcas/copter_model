@@ -63,7 +63,7 @@ float I[n][m]={{1.12*pow(10,-4),0,0},{0,2.43*pow(10,-4),0},{0,0,2.66*pow(10,-5)}
 float I_inv[n][m]={{0.8929*pow(10,-4),0,0},{0,0.4115*pow(10,-4),0},{0,0,3.7594*pow(10,-4)}};
 
 //por ahora tomamos como constantes los angulos de euler:
-float phi=1,theta=1;//son sustituidos por los recibidos de la IMU
+float phi=0,theta=0;//son sustituidos por los recibidos de la IMU o no.
 //Transformaciones de sistemas de referencia:
 float R[n][m]={{1,sin(phi)*tan(theta),cos(phi)*tan(theta)},
                 {0,cos(phi),          -sin(phi)},
@@ -201,6 +201,8 @@ int main(int argc, char **argv){
 
 	//debug:
 	ros::Publisher time_pub = n.advertise<std_msgs::Float64>("copter_model/ElapsedTime", 100);
+	ros::Publisher Angle_pub = n.advertise<geometry_msgs::Vector3>("copter_model/EulerModel", 100);
+
 
 	ros::Subscriber F_sub = n.subscribe("copter_model/Fuerza", 1000, FCallback);
 	ros::Subscriber M_sub = n.subscribe("copter_model/Momento", 1000, MCallback);
@@ -232,6 +234,14 @@ int main(int argc, char **argv){
 	xyz[0]+=uvw[0]*(float)elapsedTime;
 	xyz[1]+=uvw[1]*(float)elapsedTime;
 	xyz[2]+=uvw[2]*(float)elapsedTime;
+	
+	//Angulos de Euler:
+	//se hace ya que si no se obtienen ángulos de 90º o -90º
+	phi+=rpy_dot[0]*(float)elapsedTime;
+	theta+=rpy_dot[1]*(float)elapsedTime;
+	RPY.x=phi;
+	RPY.y=theta;
+	RPY.z=0;//tambien se podría obtener pero simplificamos de esta forma
 	//Rellenamos Fuerzas y Momentos con lo recibido por la subscricion:
 	F[0]=Fuerza.x;
 	F[1]=Fuerza.y;
@@ -240,14 +250,19 @@ int main(int argc, char **argv){
 	M[0]=Momento.x;
 	M[1]=Momento.y;
 	M[2]=Momento.z;
-	//Actualizamos la matriz de transformacion:
-	R[0][1]=sin(RPY.x)*tan(RPY.y);
+	//Actualizamos la matriz de transformacion (con los ángulos integrados):
+	/*R[0][1]=sin(RPY.x)*tan(RPY.y);
 	R[0][2]=cos(RPY.x)*tan(RPY.y);
     R[1][1]=cos(RPY.x);
 	R[1][2]=-sin(RPY.x);
     R[2][1]=sin(RPY.x)/cos(RPY.y);
-	R[2][2]=cos(RPY.x)/cos(RPY.y);
-
+	R[2][2]=cos(RPY.x)/cos(RPY.y);*/
+    R[0][1]=sin(phi)*tan(theta);
+	R[0][2]=cos(phi)*tan(theta);
+    R[1][1]=cos(phi);
+	R[1][2]=-sin(phi);
+    R[2][1]=sin(phi)/cos(theta);
+	R[2][2]=cos(phi)/cos(theta);
 	//Calculo de las salidas:
 	//Primera ecuacion modelo FyM:
 	crea_matriz(maux,pqr);
@@ -256,8 +271,7 @@ int main(int argc, char **argv){
 	//rpy_dot:
 	extrae_vect(maux2,rpy_dot);
 	//cout << " rpy_dot:" << endl;
-	//muestra_v(rpy_dot);
-	
+	//muestra_v(rpy_dot); de aquí podemos obtener los ángulos de euler sin necesidad de hacer la IMU
 	
 	//Segunda ecuacion modelo FyM
 	mult_v_num(1.0/masa,F);
@@ -307,7 +321,8 @@ int main(int argc, char **argv){
 	vel_pub.publish(Velocity);
 	pos_pub.publish(Pos);
 	time_pub.publish(Tpasado);
-	
+	//Angulos de euler del modelo
+	Angle_pub.publish(RPY);
 	previousTime=currentTime;//actualizamos el valor de previousTime
 	ros::spinOnce();
 

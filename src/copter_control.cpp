@@ -52,26 +52,29 @@ int main(int argc, char **argv)
  
   ROS_INFO("Node: 'Control' ready");
   ros::Rate loop_rate(1000);//1000 veces por segundo
-  float K=10;
-  float Kp=2;
-  float Kd=15;          
+  //Ganancias para el control de los angulos
+  float Kx=0.05;
+  float Ky=Kx;
+  //Ganancias para el control de altura
+  float Kp=4;//2;
+  float Kd=30;//15          
   //References:
-  float RefVelx=1;
-  float RefVely=1;
-  float RefAltitude=-20;//para subir un metro
+  float RefVelx=0;//20;//-5
+  float RefVely=0;//controla refs negativas y positivas
+  float RefAltitude=-15;//para subir añadir distancia negativas
   //error:
   error.x=0;
   error.y=0;
   
   //Velocidad para vencer la gravedad:
   float b=0.00000254133;
-  float Vmin=2*sqrt((0.28*9.8)/(2*b));//1469.5;
+  float Vmin=2*sqrt((0.28*9.8)/(2*b));//~1469.5;
   double currentTime=0;
   double elapsedTime=0;
   double previousTime=(double)ros::Time::now().toSec();
    while (ros::ok())
 	{
-    currentTime=(double)ros::Time::now().toSec();
+  currentTime=(double)ros::Time::now().toSec();
 	elapsedTime=(double)(currentTime-previousTime);
   //calculamos los parametros del control:
   /* Desacoplamos el control y hacemos un control P para cada accion de control
@@ -79,20 +82,29 @@ int main(int argc, char **argv)
   *                        La velocidad angular de los rotores sera igual para ambos pero en funcion del error con
   *                        la altura.
   */
-  control.x=K*(RefVelx-latestVel.linear.x);
-  control.y=K*(RefVely-latestVel.linear.y);
-  control.z=0;
+  
 
   //Altitud
   error.z=(-RefAltitude+latestPos.z);
   //pruebo un escalon para ver si se mantiene quieto en una determinada altura
- /* if(elapsedTime<=30){
+ /* if(elapsedTime<=0){
     W.data=Vmin+30;//Ka*error.z +Vmin;//lo que se suma es la velocidad que vence la gravedad
     }
   else{
     W.data=Vmin;
+  }
+  //Prueba para el control de velocidad:
+  if(elapsedTime<=40){//comprobación de cambio repentino de velocidad
+  RefVelx=20;
+    }
+  else{
+  //RefVelx=-20;
+  
   }*/
-  W.data=Kp*error.z +Kd*(latestVel.linear.z)+Vmin;
+  control.x=Kx*(-RefVelx+latestVel.linear.x);//solo controlamos por ahora la velocidad en x
+  control.y=Ky*(RefVely-latestVel.linear.y);
+  control.z=0;
+  W.data=Kp*error.z +Kd*(latestVel.linear.z)+Vmin;//es un control PV
   //if(W.data<=1469.5)W.data=1469.5;
   //Publicamos las acciones de control y los errores:
   ctrl_pub.publish(control);
