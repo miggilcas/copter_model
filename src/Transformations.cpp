@@ -1,18 +1,8 @@
 //inclusion de las librerías necesarias para ros y los tipos de mensajes usados en el paquete
 /*
-    El modelo recibe como parametros de entrada:
-    - roll, pitch y yaw
-    + velocidades lineares->integrarla de la salida del modelo
-    + velocidades angulares->integrarla de la salida del modelo
-    + F
-    + M
-
-	*Publica:
-		+aceleracion(lineal y angular)->copter_model/Accel (conseguido )
-		-deberia publicar tambien posteriormente velocidades lineales
-	*Se subscribe:
-		+F y M->copter_model/FM (conseguido)
-		+Angulos de euler (IMU nos lo aporta, hecha) subscribirse al topic donde publica
+    Para obtener las coordenadas en el sistema de referencia no inercial necesitamos de una transformacion
+	mediante una matriz de rotacion con angulos de euler. Con este nodo se consiguen esas coordenadas con
+	el nombre NED donde N expresa la coordenada X, E la coordenada Y y D la coordenada Z.
 
 */
  
@@ -43,18 +33,15 @@ const int n = 3, q = 2, m = 3, p = 3;
 
 // definicion de variables globales:
 	//Definicion de mensajes a utilizar: 
-        geometry_msgs::Accel Acceleration;
-		geometry_msgs::Twist Velocity;
-		geometry_msgs::Vector3 Fuerza;
-		geometry_msgs::Vector3 Momento;
-	//Variables para realizar la integracion:
-		unsigned long currentTime,previousTime;
-		double elapsedTime;
-//Tensor inercial:
-float I[n][m]={{1.12*pow(10,-4),0,0},{0,2.43*pow(10,-4),0},{0,0,2.66*pow(10,-5)}};
-float I_inv[n][m]={{0.8929*pow(10,-4),0,0},{0,0.4115*pow(10,-4),0},{0,0,3.7594*pow(10,-4)}};
+		geometry_msgs::Vector3 RPY;
+		geometry_msgs::Vector3 xyz;
 
-//nos subscribimos a la IMU para obtener los angulos de euler
+		geometry_msgs::Vector3 NED;
+
+        
+	
+
+//nos subscribimos al modelo para obtener los angulos de euler
 float phi=1,theta=1,psi=0;
 //Transformaciones de sistemas de referencia:
 float R[n][m]={{1,sin(phi)*tan(theta),cos(phi)*tan(theta)},
@@ -64,6 +51,10 @@ float R[n][m]={{1,sin(phi)*tan(theta),cos(phi)*tan(theta)},
 float A[n][m]={{cos(theta)*cos(psi),                              cos(theta)*sin(phi),                            -sin(theta)},
                 {-cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi),  sin(phi)*cos(theta)},
                 {sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi),  cos(phi)*cos(theta)}};;
+float AT[n][m]={{cos(theta)*cos(psi),-cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi),  sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi)},
+                {cos(theta)*sin(phi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi)},
+                {        -sin(theta),                            sin(phi)*cos(theta),  cos(phi)*cos(theta)}};;
+
 float masa = 0.280;//masa [kg] del helicóptero
 
 //Funciones:
@@ -106,27 +97,10 @@ void crea_matriz(float maux[][n],float *v){
 			}
 		}
 }
-//debug:
-void muestra(float v[][n])
-{
-    for(int i = 0; i < m; ++i) {
-        for(int j = 0; j < n; ++j) 
-            cout << v[i][j] << " ";
-			cout << endl;
-        
-    }
-}
-void muestra_v(float *v)
-{
-    for(int i = 0; i < m; ++i) {
-    cout << v[i] << " ";
-		cout << endl;	
-    }
-}
+
 //operaciones con vectores:
 void prod_vec (float *v1, float *v2,float *v3)
 {
-	
 v3[0] = v1[1]*v2[2]-v1[2]*v2[1];
 v3[1] = v1[2]*v2[0]-v1[0]*v2[2];
 v3[2] = v1[0]*v2[1]-v1[1]*v2[0];
@@ -136,58 +110,30 @@ void sum_vec (float *v1, float *v2,float *v3)
 	for(int i=0; i < m; ++i)
 	v3[i]=v1[i]+v2[i];
 }
-void sum_rest_vec (float *v1, float *v2,float *v3,int op) //para sumas op=1 para restas -1
-{
-	if(op==1){
-	for(int i=0; i < m; ++i)
-	v3[i]=v1[i]+v2[i];
-	}
-	if(op==-1){
-	for(int i=0; i < m; ++i)
-	v3[i]=v1[i]-v2[i];
-	}
-	
-}
+
 void mult_v_num(float x,float*v){
 	for(int i=0; i < m; ++i)
 	v[i]=x*v[i];
 }
+
 //Funciones callback:
-void FCallback(const geometry_msgs::Vector3::ConstPtr & message);
-void MCallback(const geometry_msgs::Vector3::ConstPtr & message);
+void EulerCallback(const geometry_msgs::Vector3::ConstPtr & message);
+void xyzCallback(const geometry_msgs::Vector3::ConstPtr & message);
 
 int main(int argc, char **argv){
-	
-	/*Ecuaciones que realizan las transformaciones:
-	En matlab:
-    	
-	*/
-	//salidas:
-	float rpy_dot[n]={0,0,0},pqr_dot[n]={0,0,0},uvw_dot[n]={0,0,0};
-	//primera ec:
-	float pqr[n]={0,0,0};//la obtendremos integrando, condiciones iniciales 0
-	
+	//variable local
+	float xyz_[n],NED_[n];
 	float maux[n][m];
 	float maux2[n][m];
-	//segunda ec:
-	
-	float F[n];
-	float uvw[n]={0,0,0};//la obtendremos integrando, condiciones iniciales 0
-	float vaux[n];
-	//tercera ec:
-	float M[n];
-	
-
 	//adaptacion a ROS:
-    ros::init(argc, argv, "model");
+    ros::init(argc, argv, "Transformations");
  	ros::NodeHandle n;
-	//publicamos la aceleracion angular para probar
 	
 	//Defino las subscripciones y donde publica:
-	ros::Publisher acc_pub = n.advertise<geometry_msgs::Accel>("copter_model/Accel", 100);
-	ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("copter_model/Vel", 100);
-	ros::Subscriber F_sub = n.subscribe("copter_model/Fuerza", 1000, FCallback);
-	ros::Subscriber M_sub = n.subscribe("copter_model/Momento", 1000, MCallback);
+	ros::Publisher ned_pub = n.advertise<geometry_msgs::Vector3>("copter_model/NED", 1000);
+	ros::Subscriber Euler_sub = n.subscribe("copter_model/EulerModel", 1000, EulerCallback);
+	ros::Subscriber xyz_sub = n.subscribe("copter_model/Pose", 1000, xyzCallback);
+
 	// lo hacemos mil veces por segundo	
 	ros::Rate loop_rate(1000);
 	
@@ -196,96 +142,64 @@ int main(int argc, char **argv){
 	/**
 	* This is a message object. You stuff it with data, and then publish it.
 	*/
-	previousTime=0;//la inicializamos antes de entrar en el bucle
+	
 	while (ros::ok())
 	{
-	currentTime=(unsigned long)ros::Time::now().toSec();
-	elapsedTime=(double)(currentTime-previousTime);
+	
+	//Actualizacion de angulos:
+	phi=RPY.x;
+	theta=RPY.y;
+	psi=0.0;
+	//Actualizacion de la matriz de transformacion:
+	//Fila 1
+	AT[0][0]= cos(theta)*cos(psi);
+	AT[0][1]=-cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi);
+	AT[0][2]= sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi);
+	//Fila 2
+	AT[1][0]= cos(theta)*sin(phi);
+	AT[1][1]= cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi);
+	AT[1][2]=-sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi);
+	//Fila 3
+	AT[2][0]=-sin(theta);
+	AT[2][1]=sin(phi)*cos(theta);
+	AT[2][2]=cos(phi)*cos(theta);
 
-	//Actualizamos la integral para hacer los calculos de las aceleraciones:
-	uvw[0]+=uvw_dot[0]*(float)elapsedTime;
-	uvw[1]+=uvw_dot[1]*(float)elapsedTime;
-	uvw[2]+=uvw_dot[2]*(float)elapsedTime;
+	//metemos la posicion del sistema inercial en variables locales:
+	xyz_[0]=xyz.x;
+	xyz_[1]=xyz.y;
+	xyz_[2]=xyz.z;
+	
+	//Calculos:
+	crea_matriz(maux,xyz_);
+	matmult(AT, maux, maux2);
+	extrae_vect(maux2,NED_);
 
-	pqr[0]+=pqr_dot[0]*(float)elapsedTime;
-	pqr[1]+=pqr_dot[1]*(float)elapsedTime;
-	pqr[2]+=pqr_dot[2]*(float)elapsedTime;
-	//Rellenamos Fuerzas y Momentos con lo recibido por la subscricion:
-	F[0]=Fuerza.x;
-	F[1]=Fuerza.y;
-	F[2]=Fuerza.z;
+	//Resultado
+	NED.x=NED_[0];
+	NED.y=NED_[1];
+	NED.z=NED_[2];
+
 	
-	M[0]=Momento.x;
-	M[1]=Momento.y;
-	M[2]=Momento.z;
-	//Calculo de las salidas:
-	//Primera ecuacion modelo FyM:
-	crea_matriz(maux,pqr);
-	//muestra(maux);
-	matmult(R, maux, maux2);
-	//rpy_dot:
-	extrae_vect(maux2,rpy_dot);
-	//cout << " rpy_dot:" << endl;
-	//muestra_v(rpy_dot);
+	ned_pub.publish(NED);
 	
 	
-	//Segunda ecuacion modelo FyM
-	mult_v_num(1.0/masa,F);
-	prod_vec(pqr,uvw,vaux);
-	
-	//uvw_dot:ros::Rate loop_rate(1);
-	sum_rest_vec(F,vaux,uvw_dot,-1);
-	//cout << " uvw_dot:" << endl;
-	//muestra_v(uvw_dot);
-	
-	//Tercera ecuacion:
-	matmult(I, maux, maux2);
-	extrae_vect(maux2,vaux);
-	prod_vec(pqr,vaux,vaux);
-	sum_rest_vec(M,vaux,vaux,-1);
-	crea_matriz(maux,vaux);
-	matmult(I_inv,maux,maux2);
-	extrae_vect(maux2,pqr_dot);
-	//rellenamos la aceleracion con los valores calculados:
-	Acceleration.linear.x = uvw_dot[0];
-	Acceleration.linear.y = uvw_dot[1];
-	Acceleration.linear.z = uvw_dot[2];
-	Acceleration.angular.x = pqr_dot[0];
-	Acceleration.angular.y = pqr_dot[1];
-	Acceleration.angular.z = pqr_dot[2];
-	//rellenamos la velocidad con los valores calculados:
-	Velocity.linear.x = uvw[0];
-	Velocity.linear.y = uvw[1];
-	Velocity.linear.z = uvw[2];
-	Velocity.angular.x = pqr[0];
-	Velocity.angular.y = pqr[1];
-	Velocity.angular.z = pqr[2];
-	/**
-	* The publish() function is how you send messages. The parameter
-	* is the message object. The type of this object must agree with the type
-	* given as a template parameter to the advertise<>() call, as was done
-	* in the constructor above.
-	*/
-	acc_pub.publish(Acceleration);
-	vel_pub.publish(Velocity);
-	previousTime=currentTime;//actualizamos el valor de previousTime
 	ros::spinOnce();
 
 	loop_rate.sleep();
 }
     return 0;
 }
-void FCallback(const geometry_msgs::Vector3::ConstPtr & message)
+void EulerCallback(const geometry_msgs::Vector3::ConstPtr & message)
 {
-  Fuerza.x=message->x;
-  Fuerza.y=message->y;
-  Fuerza.z=message->z;
+  RPY.x=message->x;
+  RPY.y=message->y;
+  RPY.z=message->z;
   
 }
-void MCallback(const geometry_msgs::Vector3::ConstPtr & message)
+void xyzCallback(const geometry_msgs::Vector3::ConstPtr & message)
 {
-  Momento.x=message->x;
-  Momento.y=message->y;
-  Momento.z=message->z;
+  xyz.x=message->x;
+  xyz.y=message->y;
+  xyz.z=message->z;
   
 }

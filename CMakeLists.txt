@@ -219,10 +219,14 @@ add_executable(F_M_generator src/F_M_generator.cpp)
 target_link_libraries(F_M_generator ${catkin_LIBRARIES})
 add_dependencies(F_M_generator copter_model_generate_messages_cpp)
 
-add_executable(IMU src/IMU.cpp)
-target_link_libraries(IMU ${catkin_LIBRARIES})
-add_dependencies(IMU copter_model_generate_messages_cpp)
+#add_executable(IMU src/IMU.cpp)
+#target_link_libraries(IMU ${catkin_LIBRARIES})
+#add_dependencies(IMU copter_model_generate_messages_cpp)
 #ultimo añadido
 add_executable(controller src/copter_control.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 add_dependencies(controller copter_model_generate_messages_cpp)
+
+add_executable(Transformations src/Transformations.cpp)
+target_link_libraries(Transformations ${catkin_LIBRARIES})
+add_dependencies(Transformations copter_model_generate_messages_cpp)

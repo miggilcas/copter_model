@@ -2,7 +2,7 @@
 
     <node pkg="copter_model" type="model" name="modelo" />
     <node pkg="copter_model" type="F_M_generator" name="FuerzasyMomentos" />
-    <node pkg="copter_model" type="IMU" name="IMU"/> 
+    <node pkg="copter_model" type="Transformations" name="Transformations" />
     <node pkg="copter_model" type="controller" name="controller"/> 
 
 </launch>

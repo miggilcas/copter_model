@@ -46,10 +46,11 @@ const int n = 3, q = 2, m = 3, p = 3;
 
 // definicion de variables globales:
 	//Definicion de mensajes a utilizar: 
-        geometry_msgs::Accel Acceleration;
-		geometry_msgs::Twist Velocity;
 		geometry_msgs::Vector3 Fuerza;
 		geometry_msgs::Vector3 Momento;
+
+        geometry_msgs::Accel Acceleration;
+		geometry_msgs::Twist Velocity;
 		geometry_msgs::Point Pos;
 		geometry_msgs::Vector3 RPY;//Roll Pitch Yaw
 

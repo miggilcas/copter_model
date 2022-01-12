@@ -19,9 +19,10 @@
 #include <stdlib.h>
 #include <sstream>
 
-//global variables
+//Definicion de mensajes a utilizar
 geometry_msgs::Twist latestVel;
 geometry_msgs::Point latestPos;
+
 geometry_msgs::Vector3 control;//Angle Control Actions
 geometry_msgs::Vector3 error;//Angle Control Actions
 
@@ -59,7 +60,7 @@ int main(int argc, char **argv)
   float Kp=4;//2;
   float Kd=30;//15          
   //References:
-  float RefVelx=0;//20;//-5
+  float RefVelx=-5;//20;//-5
   float RefVely=0;//controla refs negativas y positivas
   float RefAltitude=-15;//para subir añadir distancia negativas
   //error:

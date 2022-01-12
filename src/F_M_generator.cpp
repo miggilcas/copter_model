@@ -8,7 +8,7 @@
 	09/01/22: Control de altura realizado
 	10/01/22: Cambio la IMU para obtener Roll, Pitch y Yaw sacándola del modelo
 	11/01/22: Control de velocidad implementado.
-    
+    12/01/22: Dame implementa el control en posicion.
 */
 #include "ros/ros.h"
 
