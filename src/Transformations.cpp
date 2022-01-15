@@ -14,7 +14,7 @@
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose.h"
-#include "geometry_msgs/Pose.h"
+
 #include "geometry_msgs/Accel.h"
 #include "geometry_msgs/Vector3.h"
 

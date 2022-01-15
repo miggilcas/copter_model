@@ -194,7 +194,7 @@ int main(int argc, char **argv){
 	//adaptacion a ROS:
     ros::init(argc, argv, "model");
  	ros::NodeHandle n;
-	//publicamos la aceleracion 
+	
 	//Defino las subscripciones y donde publica:
 	ros::Publisher acc_pub = n.advertise<geometry_msgs::Accel>("copter_model/Accel", 100);
 	ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("copter_model/Vel", 100);
@@ -209,7 +209,7 @@ int main(int argc, char **argv){
 	ros::Subscriber M_sub = n.subscribe("copter_model/Momento", 1000, MCallback);
 	ros::Subscriber Eul_sub = n.subscribe("copter_model/EulerAngles", 1000, EulerCallback);
 
-	// lo hacemos mil veces por segundo	
+	// Frecuencia de 1 KHz
 	ros::Rate loop_rate(1000);
 	
 	 int count = 0;

@@ -95,9 +95,9 @@ int main(int argc, char **argv){
 	ros::Publisher M_pub = n.advertise<geometry_msgs::Vector3>("copter_model/Momento", 100);
 	
 	//Para obtener las variables de control:
-	ros::Subscriber AngleSub = n.subscribe("copter_model/AngleControl", 1000, controlCallback);
-	ros::Subscriber Zsub = n.subscribe("copter_model/ZControl", 1000, zCallback);
-    // lo hacemos mil veces por segundo	
+	ros::Subscriber AngleSub = n.subscribe("copter_control/AngleControl", 1000, controlCallback);
+	ros::Subscriber Zsub = n.subscribe("copter_control/ZControl", 1000, zCallback);
+    // Frecuencia de 1 KHz
 	ros::Rate loop_rate(1000);
 	ROS_INFO("Node: F_M_generator ready");
 	while (ros::ok())
