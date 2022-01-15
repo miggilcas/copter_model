@@ -1,4 +1,4 @@
-# copter_model description#
+# copter_model description #
 
 A simple package for a simple Coaxial Copter.
 
@@ -57,9 +57,7 @@ roslaunch copter_model Simple_copter.launch
 ```
 ## Support
 Our emails are:
-	miguel.gil2000@gmail.com
-	dame
-	juanjo
+	miguel.gil2000@gmail.com 	dameseck121200@gmail.com	ok.jjg.juanjose@gmail.com
 
 
 ## Authors and acknowledgment
