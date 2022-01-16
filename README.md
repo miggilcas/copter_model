@@ -64,7 +64,7 @@ Our emails are:
 This project is an university project developed by Miguel Gil Castilla, Dame Seck Diop and Juan José García Calderón.
 
 ## License
-We don't know what license to use.
+Apache-2.0 License
 
 ## Project status
 This project is not finished yet.
