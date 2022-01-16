@@ -39,7 +39,12 @@ int main(int argc, char **argv)
 	elapsedTime=(double)(currentTime-previousTime);
   
   //vamos generando los waypoints en funcion del tiempo pasado
-  if(elapsedTime<=20){//Primer punto
+  if(elapsedTime<=10){//Primer punto
+    Waypoint.x=0;
+    Waypoint.y=0;
+    Waypoint.z=0;
+  }
+  if(elapsedTime>=10 && elapsedTime<=20){//Primer punto
     Waypoint.x=0;
     Waypoint.y=0;
     Waypoint.z=-1;

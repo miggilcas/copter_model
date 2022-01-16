@@ -42,9 +42,9 @@ const int n = 3, q = 2, m = 3, p = 3;
 	geometry_msgs::Vector3 Control;
 //constantes:
 	float g=9.8;
-	float masa = 0.280;//masa del helicÃ³ptero
+	float masa =0.095; //0.280;//masa del helicoptero según el TFG, nos interesa la de la tesis: 0.095
 	float RollArmLength=0.055;
-	float PitchArmLength=0.055;
+	float PitchArmLength=0.091;//obtenidos de la tesis
 //Funciones callback para actualizar los valores a recibir:
 void controlCallback(const geometry_msgs::Vector3::ConstPtr & message)
 {
@@ -75,7 +75,7 @@ int main(int argc, char **argv){
 	Tras hacer pruebas se observa que el alfax conotrola la posicion y velocidad en y y viceversa
 	*/
 	//b (Factor de empuje) y d(factor de arrastre) son calculados a partir de w1 y w2.
-	float b=0.00000254133;//lo suponemos constantemasa*g/(pow(w1,2)+pow(w2,2)*cos(alfax)*cos(alfay));//cambiar por el valor calculado
+	float b=0.00000254133;//lo suponemos constante: 0.0875⁴*0.0138*pi
 	float d=0.05*b;
 	//salidas:
 	float F[n];
@@ -146,7 +146,7 @@ int main(int argc, char **argv){
 	*/
 	F[0]=-T3;
 	F[1]=T4;
-	F[2]=g*masa -T1-T2e;
+	F[2]=-T1-T2e;
 	
 	M[0]=T4*RollArmLength-DT3 ;
 	M[1]=-T3*PitchArmLength+DT4;

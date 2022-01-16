@@ -55,7 +55,7 @@ float AT[n][m]={{cos(theta)*cos(psi),-cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(
                 {cos(theta)*sin(phi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi)},
                 {        -sin(theta),                            sin(phi)*cos(theta),  cos(phi)*cos(theta)}};;
 
-float masa = 0.280;//masa [kg] del helicóptero
+
 
 //Funciones:
 //Operaciones con matrices:

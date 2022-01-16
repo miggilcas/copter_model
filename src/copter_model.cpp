@@ -69,7 +69,8 @@ float phi=0,theta=0;//son sustituidos por los recibidos de la IMU o no.
 float R[n][m]={{1,sin(phi)*tan(theta),cos(phi)*tan(theta)},
                 {0,cos(phi),          -sin(phi)},
                 {0,sin(phi)/cos(theta),cos(phi)/cos(theta)}};
-float masa = 0.280;//masa [kg] del helicóptero
+float masa = 0.095;//masa=0.280 [kg] del helicóptero segun el TFG, necesitamos la de la tesis:0.095
+float g=9.8;
 //Posicion:
 float xyz[n]={0,0,0};
 //Funciones:
@@ -246,7 +247,7 @@ int main(int argc, char **argv){
 	//Rellenamos Fuerzas y Momentos con lo recibido por la subscricion:
 	F[0]=Fuerza.x;
 	F[1]=Fuerza.y;
-	F[2]=Fuerza.z;
+	F[2]=Fuerza.z+g*masa ;//lo modificamos para meter el modelo en un campo gravitatorio
 	
 	M[0]=Momento.x;
 	M[1]=Momento.y;

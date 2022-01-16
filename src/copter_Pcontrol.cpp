@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <sstream>
+#include <random>
 
 //global variables
 geometry_msgs::Point latestPos;
@@ -28,11 +29,17 @@ geometry_msgs::Vector3 error;//Position Errors
 geometry_msgs::Vector3 RefVel;//Velocity Reference
 geometry_msgs::Point wp;//Waypoints
 
-
+//inclusion de ruido
+unsigned seed;
 
 void poseCallback(const geometry_msgs::Point::ConstPtr & message)
 {
-  latestPos =*message;
+  std::default_random_engine e(seed);
+  
+  latestPos =*message;//meter ruido
+  std::normal_distribution<double> noise(0,0.1);
+  latestPos.x+=noise(e);
+  latestPos.y+=noise(e);
 }
 void wpCallback(const geometry_msgs::Point::ConstPtr & message)
 {
@@ -70,6 +77,7 @@ int main(int argc, char **argv)
   double previousTime=(double)ros::Time::now().toSec();
    while (ros::ok())
 	{
+  seed=ros::Time::now().toSec();
   currentTime=(double)ros::Time::now().toSec();
 	elapsedTime=(double)(currentTime-previousTime);
   //calculamos los parametros del control:

@@ -18,6 +18,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <sstream>
+#include <random>
 
 //global variables
 geometry_msgs::Twist latestVel;
@@ -29,14 +30,22 @@ geometry_msgs::Point wp;//Waypoints
 
 std_msgs::Float64 W;
 std_msgs::Float64 zerror;
+
+//inclusion de ruido
+unsigned seed;
+//funciones callback
 void velCallback(const geometry_msgs::Twist::ConstPtr & message)
 {
-  latestVel=*message;
+ // std::default_random_engine e(seed);
+  
+  latestVel=*message;//meter ruido
+  //std::normal_distribution<double> noise(latestVel.x,0.5);
+  //latestVel.x+=noise(e);
 }
 //obtiene las posiciones 
 void poseCallback(const geometry_msgs::Point::ConstPtr & message)
 {
-  latestPos =*message;
+  latestPos =*message;//meter ruido
 }
 void refCallback(const geometry_msgs::Vector3::ConstPtr & message)
 {
@@ -85,12 +94,13 @@ int main(int argc, char **argv)
   
   //Velocidad para vencer la gravedad:
   float b=0.00000254133;
-  float Vmin=2*sqrt((0.28*9.8)/(2*b));//~1469.5;
+  float Vmin=2*sqrt((0.095*9.8)/(2*b));//con m=0.28->Vmin=~1469.5; si usamos m=0.095->855.97
   double currentTime=0;
   double elapsedTime=0;
   double previousTime=(double)ros::Time::now().toSec();
    while (ros::ok())
 	{
+  seed=ros::Time::now().toSec();
   currentTime=(double)ros::Time::now().toSec();
 	elapsedTime=(double)(currentTime-previousTime);
   //calculamos los parametros del control:
@@ -135,7 +145,7 @@ int main(int argc, char **argv)
   control.z=0;
 
   //Control en altura
-  W.data=Vmin;
+  W.data=Kp*zerror.data +Kd*(latestVel.linear.z)+Vmin;//Vmin;
   
     }
   else{
