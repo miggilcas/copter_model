@@ -55,6 +55,33 @@ Run the following commands below.
 ```
 roslaunch copter_model Simple_copter.launch
 ```
+
+### Data visualization with PlotJuggler ###
+After launching, you can see the results of yout experiments running the following commands:
+
+Start PlotJuggler:
+
+```
+rosrun plotjuggler plotjuggler
+```
+
+In case your image lacks this tool you can install it by typing:
+
+```
+sudo apt-get update
+sudo apt-get install ros-melodic-plotjuggler-ros
+```
+From menu bar select Streaming > Start: ROS_Topic_Streamer. In pop-up menu that will appear choose /pose from available topic names and press ok.
+
+By now you have the data in-stream.
+
+By default you won't see any graphic, so you need a Layout. To load a layout press File->Layout (First icon)
+
+//imagen
+
+
+Then select the folder: Layouts plotjuggler
+ 
 ## Support
 Our emails are:
 	miguel.gil2000@gmail.com 	dameseck121200@gmail.com	ok.jjg.juanjose@gmail.com

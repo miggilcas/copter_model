@@ -33,19 +33,27 @@ std_msgs::Float64 zerror;
 
 //inclusion de ruido
 unsigned seed;
+float std_dev;
+
 //funciones callback
 void velCallback(const geometry_msgs::Twist::ConstPtr & message)
 {
  // std::default_random_engine e(seed);
   
   latestVel=*message;//meter ruido
-  //std::normal_distribution<double> noise(latestVel.x,0.5);
+  //std::normal_distribution<double> noise(0,std_dev);
   //latestVel.x+=noise(e);
+  //latestVel.y+=noise(e);
+  //latestVel.z+=noise(e);
 }
 //obtiene las posiciones 
 void poseCallback(const geometry_msgs::Point::ConstPtr & message)
 {
+  // std::default_random_engine e(seed);
+  //std::normal_distribution<double> noise(0,std_dev);
+
   latestPos =*message;//meter ruido
+  //latestPose.z+=noise(e);
 }
 void refCallback(const geometry_msgs::Vector3::ConstPtr & message)
 {
@@ -62,17 +70,22 @@ int main(int argc, char **argv)
 
   
   ros::NodeHandle n;
-  
+  //Publishers
   ros::Publisher ctrl_pub = n.advertise<geometry_msgs::Vector3>("copter_control/AngleControl", 100);
   ros::Publisher Alt_ctrl_pub = n.advertise<std_msgs::Float64>("copter_control/ZControl", 100);
   //ros::Publisher error_pub = n.advertise<geometry_msgs::Vector3>("copter_control/Errors", 100);
   ros::Publisher error_pub = n.advertise<std_msgs::Float64>("copter_control/zError", 100);
 
+  //Subscribers
   ros::Subscriber Velsub = n.subscribe("copter_model/Vel", 1000, velCallback);
   ros::Subscriber Posesub = n.subscribe("copter_model/Pose", 1000, poseCallback);
 
   ros::Subscriber Vrefsub = n.subscribe("copter_control/Vref", 1000, refCallback);
   ros::Subscriber Arefsub = n.subscribe("copter_control/Waypoints", 100, ArefCallback);
+
+  //Parameters
+  //Parameters
+  n.param<float>("standar_deviation", std_dev, 0.0);
 
   ROS_INFO("Node: 'VControl' ready");
   ros::Rate loop_rate(1000);//Frecuencia de 1 KHz
@@ -100,7 +113,10 @@ int main(int argc, char **argv)
   double previousTime=(double)ros::Time::now().toSec();
    while (ros::ok())
 	{
+  //ruido
   seed=ros::Time::now().toSec();
+  n.getParam("standar_deviation", std_dev);
+
   currentTime=(double)ros::Time::now().toSec();
 	elapsedTime=(double)(currentTime-previousTime);
   //calculamos los parametros del control:

@@ -31,13 +31,13 @@ geometry_msgs::Point wp;//Waypoints
 
 //inclusion de ruido
 unsigned seed;
-
+float std_dev;
 void poseCallback(const geometry_msgs::Point::ConstPtr & message)
 {
   std::default_random_engine e(seed);
   
   latestPos =*message;//meter ruido
-  std::normal_distribution<double> noise(0,0.1);
+  std::normal_distribution<double> noise(0,std_dev);//al principio valor fijo de 0.1
   latestPos.x+=noise(e);
   latestPos.y+=noise(e);
 }
@@ -52,13 +52,17 @@ int main(int argc, char **argv)
 
   
   ros::NodeHandle n;
-  
+  //Publishers
   ros::Publisher VelRef_pub = n.advertise<geometry_msgs::Vector3>("copter_control/Vref", 100);
   ros::Publisher error_pub = n.advertise<geometry_msgs::Vector3>("copter_control/Errors", 100);
 
-  
+  //Subscribers
   ros::Subscriber Posesub = n.subscribe("copter_model/Pose", 1000, poseCallback);
   ros::Subscriber wpsub = n.subscribe("copter_control/Waypoints", 100, wpCallback);
+
+  //Parameters
+  n.param<float>("standar_deviation", std_dev, 0.0);
+
   ROS_INFO("Node: 'PControl' ready");
   ros::Rate loop_rate(100);//100 Hz
   //Ganancias 
@@ -77,7 +81,10 @@ int main(int argc, char **argv)
   double previousTime=(double)ros::Time::now().toSec();
    while (ros::ok())
 	{
+  //ruido
   seed=ros::Time::now().toSec();
+  n.getParam("standar_deviation", std_dev);
+  
   currentTime=(double)ros::Time::now().toSec();
 	elapsedTime=(double)(currentTime-previousTime);
   //calculamos los parametros del control:
@@ -86,6 +93,8 @@ int main(int argc, char **argv)
   *                        La velocidad angular de los rotores sera igual para ambos pero en funcion del error con
   *                        la altura.
   */
+
+
   //Referencias
   Refx=wp.x;
   Refy=wp.y;
