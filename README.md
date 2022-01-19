@@ -77,11 +77,13 @@ By now you have the data in-stream.
 
 By default you won't see any graphic, so you need a Layout. To load a layout press File->Layout (First icon)
 
-//imagen
-
+![Image text](https://github.com/miggilcas/copter_model/blob/main/Images/plotjuggler_tutorial1.png)
 
 Then select the folder: Layouts plotjuggler
- 
+
+If you want to see some examples we have done before, you can load them pressing File->Data:
+![Image text](https://github.com/miggilcas/copter_model/blob/main/Images/plotjuggler_tutorial2.png)
+
 ## Support
 Our emails are:
 	miguel.gil2000@gmail.com 	dameseck121200@gmail.com	ok.jjg.juanjose@gmail.com
