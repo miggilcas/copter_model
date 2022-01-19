@@ -88,6 +88,19 @@ In the folder called "Data plotjuggler" you can find those examples.
 To see the data plot in the layout, load the data, load the layout like is explained and finally select the time and press ok:
 ![Image text](https://github.com/miggilcas/copter_model/blob/main/Images/plotjuggler_tutorial3.png)
 
+#### Adding gaussian noise ####
+To add gaussian noise in your experiments you can modificate the parameter "/standar_deviation" typing:
+
+```
+rosparam set /standar_deviation <value>
+```
+
+To see the actual value of this parameter type:
+
+```
+rosparam get /standar_deviation
+```
+
 ## Support
 Our emails are:
 	miguel.gil2000@gmail.com 	dameseck121200@gmail.com	ok.jjg.juanjose@gmail.com
