@@ -38,22 +38,22 @@ float std_dev;
 //funciones callback
 void velCallback(const geometry_msgs::Twist::ConstPtr & message)
 {
- // std::default_random_engine e(seed);
+  std::default_random_engine e(seed);
   
   latestVel=*message;//meter ruido
-  //std::normal_distribution<double> noise(0,std_dev);
-  //latestVel.x+=noise(e);
-  //latestVel.y+=noise(e);
-  //latestVel.z+=noise(e);
+  std::normal_distribution<double> noise(0,std_dev);
+  latestVel.linear.x+=noise(e);
+  latestVel.linear.y+=noise(e);
+  latestVel.linear.z+=noise(e);
 }
 //obtiene las posiciones 
 void poseCallback(const geometry_msgs::Point::ConstPtr & message)
 {
-  // std::default_random_engine e(seed);
-  //std::normal_distribution<double> noise(0,std_dev);
+  std::default_random_engine e(seed);
+  std::normal_distribution<double> noise(0,std_dev);
 
   latestPos =*message;//meter ruido
-  //latestPose.z+=noise(e);
+  latestPos.z+=noise(e);
 }
 void refCallback(const geometry_msgs::Vector3::ConstPtr & message)
 {

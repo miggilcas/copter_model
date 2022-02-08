@@ -1,7 +1,7 @@
 //inclusion de las librerías necesarias para ros y los tipos de mensajes usados en el paquete
 /*
     El modelo recibe como parametros de entrada:
-    - roll, pitch y yaw
+    - roll, pitch y yaw, finalmente los generamos nosotros integrando
     + velocidades lineares->integrarla de la salida del modelo
     + velocidades angulares->integrarla de la salida del modelo
     + F
@@ -12,7 +12,8 @@
 		+deberia publicar tambien posteriormente velocidades lineales(ya lo hace) y la altura para el control(da la posicion completa)
 	*Se subscribe:
 		+F y M->copter_model/FM (conseguido)
-		-Angulos de euler (IMU nos lo aporta, hecha) subscribirse al topic donde publica
+		-Angulos de euler (IMU nos lo aporta, hecha) subscribirse al topic donde publica, Esto lo cambiamos y trabajamos con los ángulos
+		generados por el modelo,
 
 */
  
@@ -113,7 +114,7 @@ void crea_matriz(float maux[][n],float *v){
 			}
 		}
 }
-//debug:
+//Funciones para debug en un compilador normal:
 void muestra(float v[][n])
 {
     for(int i = 0; i < m; ++i) {

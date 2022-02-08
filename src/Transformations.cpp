@@ -3,6 +3,8 @@
     Para obtener las coordenadas en el sistema de referencia no inercial necesitamos de una transformacion
 	mediante una matriz de rotacion con angulos de euler. Con este nodo se consiguen esas coordenadas con
 	el nombre NED donde N expresa la coordenada X, E la coordenada Y y D la coordenada Z.
+	Es necesario comentar que al poseer el sistema unos ángulos de euler tan pequeños, acabarán siendo 
+	más o menos iguales que los parámetros expresados en el sistema de referencia inercial.
 
 */
  

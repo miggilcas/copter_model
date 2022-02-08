@@ -1,7 +1,7 @@
 //inclusion de las librerÃ­as necesarias para ros y los tipos de mensajes usados en el paquete
 /*
     Este nodo nos servira para comunicarle al modelo de fuerzas y momentos
-	las fuerzas y momentos que debe aplicar.
+	las fuerzas y momentos que se deben aplicar.
 	Se subscribira al controlador para obtener las acciones de control, con estas 
 	generara las fuerzas y momentos, parametros que debe publicar.
 	07/01/22: Preparado para controlar, recibir las señales del control
@@ -56,7 +56,7 @@ void zCallback(const std_msgs::Float64::ConstPtr & message)
 {
   W = *message;
 }
-//Funciones:
+//Funciones para le depuración en un compilador de C normal:
 
 void muestra_v(float *v)
 {
